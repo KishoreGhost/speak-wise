@@ -5,7 +5,7 @@ const { Connect, isConnected } = require("./db");
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser')
-const {signUpRouter, LoginRouter} = require('./routes/routes')
+const {signUpRouter, LoginRouter, GoogleRouter} = require('./routes/routes')
 
 
 const app = express();
@@ -31,6 +31,7 @@ Connect()
 // Routes
 app.use("/", signUpRouter)
 app.use("/", LoginRouter)
+app.use("/", GoogleRouter)
 
 mongoose.connection.once('open', () => {
     console.log("Connected to mongoDB");

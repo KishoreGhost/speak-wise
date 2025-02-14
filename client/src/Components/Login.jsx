@@ -4,6 +4,7 @@ import image from "../assets/Frame 1000003437.png";
 import logo from "../assets/Screenshot 2025-02-14 153526.png";
 import { FaGoogle } from "react-icons/fa";
 import { auth, provider, signInWithPopup, signOut } from "../../firebase";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [password, setPassword] = useState("");
@@ -15,9 +16,35 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
+      const user = result.user; // Extract user data here
+  
+      const userData = {
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        uid: user.uid,
+      };
+  
+      localStorage.setItem("token", user.accessToken);
+  
+      const response = await fetch("http://localhost:3000/google-signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+  
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to store user in DB");
+      }
+  
+      toast.success(`Welcome, ${user.displayName}!`);
+      setTimeout(() => navigate("/dashboard"), 1000);
     } catch (error) {
       console.error("Login Failed", error);
+      toast.error("Login Failed: " + error.message);
     }
   };
 
