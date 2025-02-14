@@ -3,12 +3,32 @@ import { useNavigate } from "react-router-dom";
 import image from "../assets/Frame 1000003437.png";
 import logo from "../assets/Screenshot 2025-02-14 153526.png";
 import { FaGoogle } from "react-icons/fa";
+import { auth, provider, signInWithPopup, signOut } from "../../firebase";
 
 const Login = () => {
   const [password, setPassword] = useState("");
   const [passwordStrength, setPasswordStrength] = useState("Weak");
+  const [user, setUser] = useState(null);
 
   const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
+    } catch (error) {
+      console.error("Login Failed", error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+    } catch (error) {
+      console.error("Logout Failed", error);
+    }
+  };
 
   // Function to validate password
   const validatePassword = (password) => {
@@ -121,7 +141,7 @@ const Login = () => {
             <span className="px-2 text-gray-500">OR</span>
             <div className="flex-1 h-px bg-gray-300"></div>
           </div>
-          <button className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center mt-4">
+          <button onClick={handleLogin} className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center mt-4">
             <FaGoogle className="w-4 h-4 mr-2" color="#4285F4" />
             Sign in with Google
           </button>
