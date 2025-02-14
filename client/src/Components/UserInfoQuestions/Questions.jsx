@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { RadioGroup } from "@headlessui/react";
-import logo from "../../assets/Screenshot 2025-02-14 153526.png";
+import logo from "../../assets/logo.png";
 import axios from "axios";
 
 const questions = [
