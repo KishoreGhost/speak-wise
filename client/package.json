@@ -14,6 +14,7 @@
     "@tensorflow-models/posenet": "^2.2.2",
     "@tensorflow/tfjs": "^3.21.0",
     "@tensorflow/tfjs-backend-webgl": "^3.21.0",
+    "axios": "^1.7.9",
     "client": "file:",
     "cra-template": "1.2.0",
     "framer-motion": "^12.4.3",
@@ -24,12 +25,11 @@
     "react-scripts": "5.0.1",
     "shadcn-ui": "^0.9.4",
     "styled-components": "^6.1.15",
-    "tailwindcss": "^4.0.6",
-    "use-debounce": "^10.0.4"
+    "use-debounce": "^10.0.4",
+    "tailwindcss": "^4.0.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
-    "@tailwindcss/vite": "^4.0.6",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
