@@ -1,8 +1,11 @@
 const express = require('express')
 const User = require('../models/user.model')
+const FireBaseUser = require('../models/FirebaseUser.model')
 const bcrypt = require('bcrypt')
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
+
+const GoogleRouter = express.Router()
 
 const signUpRouter = express.Router()
 const LoginRouter = express.Router()
@@ -66,4 +69,30 @@ LoginRouter.post("/login", async (req, res) => {
     }
   });
 
-module.exports = {LoginRouter, signUpRouter}
+  GoogleRouter.post('/google-signup', async (req, res) => {
+    try {
+      const { name, email, photoURL, uid } = req.body;
+  
+      // Check if the user already exists in the database
+      let user = await FireBaseUser.findOne({ email });
+  
+      if (!user) {
+        // Create new user
+        user = new FireBaseUser({
+          name, // Assuming you have updated the schema to include 'name'
+          email,
+          photoURL,
+          googleId: uid,
+        });
+  
+        await user.save();
+      }
+  
+      res.status(200).json({ message: "User stored successfully", user });
+    } catch (error) {
+      console.error("Google Signup Error:", error);
+      res.status(500).json({ message: "Server Error", error });
+    }
+  });
+
+module.exports = {LoginRouter, signUpRouter, GoogleRouter}
