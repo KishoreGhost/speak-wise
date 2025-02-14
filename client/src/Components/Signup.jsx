@@ -77,7 +77,8 @@ const SignUpPage = () => {
       if (response.ok) {
         alert("Signup successful!");
         localStorage.setItem("token", data.token);
-        navigate("/dashboard");
+        localStorage.setItem("userId", data.user._id)
+        navigate("/questions");
       } else {
         alert(data.message || "Signup failed");
       }

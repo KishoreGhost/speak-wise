@@ -71,8 +71,10 @@ const Login = () => {
       
       if (response.ok) {
         alert("Login successful!");
+        console.log("res", data)
         localStorage.setItem("token", data.token); // Save JWT token
-        navigate("/dashboard"); // Redirect to the dashboard or homepage
+        localStorage.setItem("userId", data.user._id)
+        navigate("/questions"); // Redirect to the dashboard or homepage
       } else {
         alert(data.message); // Show error message
       }

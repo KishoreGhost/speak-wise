@@ -1,6 +1,7 @@
 const express = require('express')
 const User = require('../models/user.model')
 const FireBaseUser = require('../models/FirebaseUser.model')
+const Responses = require('../models/responses.model')
 const bcrypt = require('bcrypt')
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
@@ -9,6 +10,7 @@ const GoogleRouter = express.Router()
 
 const signUpRouter = express.Router()
 const LoginRouter = express.Router()
+const responsesRouter = express.Router()
 
 signUpRouter.post("/signup", async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
@@ -62,7 +64,7 @@ LoginRouter.post("/login", async (req, res) => {
         expiresIn: "1h",
       });
   
-      res.status(200).json({ token });
+      res.status(200).json({ token, user: {_id: user._id} });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Server error" });
@@ -95,4 +97,26 @@ LoginRouter.post("/login", async (req, res) => {
     }
   });
 
-module.exports = {LoginRouter, signUpRouter, GoogleRouter}
+responsesRouter.post('/responses', async(req, res) => {
+  const {userId, answers} = req.body
+  try{
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const response = new Responses({
+      userId,
+      answers,
+    });
+
+    await response.save();
+    res.status(200).json({ message: 'Response saved successfully.' });
+  }catch (error) {
+    console.error("Error saving response:", error.message, error.stack); // Add error details
+    res.status(500).json({ error: 'Internal server error.' });
+  }  
+})
+
+
+module.exports = {LoginRouter, signUpRouter, GoogleRouter, responsesRouter}
