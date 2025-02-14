@@ -7,8 +7,8 @@ import { auth, provider, signInWithPopup, signOut } from "../../firebase";
 
 const Login = () => {
   const [password, setPassword] = useState("");
-  const [passwordStrength, setPasswordStrength] = useState("Weak");
   const [user, setUser] = useState(null);
+  const [email, setEmail] = useState("");
 
   const navigate = useNavigate();
 
@@ -30,19 +30,36 @@ const Login = () => {
     }
   };
 
-  // Function to validate password
-  const validatePassword = (password) => {
-    if (password.length < 8) return "Weak";
-    if (!/[A-Z]/.test(password)) return "Medium";
-    if (!/[0-9]/.test(password) && !/[!@#$%^&*]/.test(password))
-      return "Medium";
-    return "Strong";
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert("Login successful!");
+        localStorage.setItem("token", data.token); // Save JWT token
+        navigate("/dashboard"); // Redirect to the dashboard or homepage
+      } else {
+        alert(data.message); // Show error message
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      alert("An error occurred during login.");
+    }
   };
+
+
 
   const handlePasswordChange = (e) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
-    setPasswordStrength(validatePassword(newPassword));
   };
 
   return (
@@ -83,24 +100,27 @@ const Login = () => {
             <h1 className="text-xl md:text-2xl font-bold">Speak Wise</h1>
           </div>
           <div className="flex justify-between mb-4">
-            <button className="flex-1 py-2 text-center border-b-2 border-blue-500">
+            <button className="flex-1 py-2 text-center border-b-2 border-blue-500" style={{ cursor: "pointer" }}>
               Sign In
             </button>
             <button
               className="flex-1 py-2 text-center text-gray-500"
               onClick={() => navigate("/signup")}
+              style={{ cursor: "pointer" }}
             >
               Sign Up
             </button>
           </div>
-          <form>
+          <form onSubmit={handleSubmit}>
             <label className="block text-left text-gray-700 font-medium mb-1">
               Email Id
             </label>
             <input
               type="email"
+              value={email}
               className="w-full border border-gray-300 rounded-lg p-2 mb-4"
               placeholder="Enter Email"
+              onChange={(e) => setEmail(e.target.value)}
             />
             <label className="block text-left text-gray-700 font-medium mb-1">
               Password
@@ -112,26 +132,10 @@ const Login = () => {
               className="w-full border border-gray-300 rounded-lg p-2 mb-2"
               placeholder="Enter Password"
             />
-            <p
-              className={`text-sm mb-4 ${
-                passwordStrength === "Weak"
-                  ? "text-red-500"
-                  : passwordStrength === "Medium"
-                  ? "text-yellow-500"
-                  : "text-green-500"
-              }`}
-            >
-              Password Strength: {passwordStrength}
-            </p>
-            <ul className="text-sm text-gray-500 mb-4">
-              <li>✓ At least 8 characters</li>
-              <li>✓ Contains an uppercase letter</li>
-              <li>✓ Contains a number or symbol</li>
-            </ul>
             <button
               type="submit"
+              style={{ cursor: "pointer" }}
               className="w-full bg-blue-500 text-white py-2 rounded-lg"
-              disabled={passwordStrength !== "Strong"}
             >
               Login
             </button>
@@ -141,7 +145,7 @@ const Login = () => {
             <span className="px-2 text-gray-500">OR</span>
             <div className="flex-1 h-px bg-gray-300"></div>
           </div>
-          <button onClick={handleLogin} className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center mt-4">
+          <button onClick={handleLogin} style={{ cursor: "pointer" }} className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center mt-4">
             <FaGoogle className="w-4 h-4 mr-2" color="#4285F4" />
             Sign in with Google
           </button>
