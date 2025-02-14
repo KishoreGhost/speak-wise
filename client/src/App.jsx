@@ -8,7 +8,12 @@ import PostureTester from "./Components/Pose";
 import Login from "./Components/Login"
 import Signup from "./Components/Signup";
 import Questionnaire from "./Components/UserInfoQuestions/Questions";
+<<<<<<< Updated upstream
 import SpeechAnalyzer from "./Components/SpeechAnalyzer";
+=======
+import ScoreCard from "./Components/Score/Score";
+
+>>>>>>> Stashed changes
 
 function App() {
   return (
@@ -18,6 +23,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/posture-tester" element={<PostureTester />} />
         <Route path="/questions" element={<Questionnaire />} /> 
+        <Route path="/score" element={<ScoreCard />} />
       </Routes>
     </Router>
   );
