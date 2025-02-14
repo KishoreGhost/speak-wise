@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
   const [scores, setScores] = useState({
@@ -10,17 +10,13 @@ const HomePage = () => {
   });
   const [feedback, setFeedback] = useState("");
   const [summary, setSummary] = useState("");
+  const [videos, setVideos] = useState([]); // State for storing videos
 
-  // List of YouTube video IDs
-  const videoList = [
-    { id: "DfXtmYhMfIY", title: "Public Speaking Tips" },
-    { id: "tShavGuo0_E", title: "How to Speak with Confidence" },
-    { id: "GJzDyoqZUIE", title: "5 Secret Public Speaking Techniques" },
-    { id: "fCujEU6x7xA", title: "Avoid These Public Speaking Mistakes" },
-  ];
+  const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY; // Store API key in environment variables
 
   useEffect(() => {
-    const fetchData = async () => {
+    // Fetch AI feedback data
+    const fetchFeedbackData = async () => {
       try {
         const response = await fetch("https://your-backend-api.com/feedback");
         const data = await response.json();
@@ -33,11 +29,34 @@ const HomePage = () => {
         setFeedback(data.feedback);
         setSummary(data.summary);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching feedback data:", error);
       }
     };
-    fetchData();
+
+    fetchFeedbackData();
   }, []);
+
+  useEffect(() => {
+    // Fetch YouTube videos dynamically
+    const fetchYouTubeVideos = async () => {
+      try {
+        const response = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?part=snippet&q=public%20speaking&type=video&key=${YOUTUBE_API_KEY}&maxResults=4`
+        );
+        const data = await response.json();
+        const fetchedVideos = data.items.map((item) => ({
+          id: item.id.videoId,
+          title: item.snippet.title,
+          thumbnail: item.snippet.thumbnails.medium.url,
+        }));
+        setVideos(fetchedVideos);
+      } catch (error) {
+        console.error("Error fetching YouTube videos:", error);
+      }
+    };
+
+    fetchYouTubeVideos();
+  }, [YOUTUBE_API_KEY]);
 
   return (
     <div className="flex flex-col justify-between min-h-screen bg-white text-blue-900 px-8 py-8">
@@ -93,20 +112,29 @@ const HomePage = () => {
           Improve Your Public Speaking
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {videoList.map((video) => (
+          {videos.map((video) => (
             <div
               key={video.id}
               className="rounded-xl overflow-hidden shadow-lg"
             >
-              <iframe
-                className="w-full h-56 md:h-64"
-                src={`https://www.youtube.com/embed/${video.id}`}
-                title={video.title}
-                allowFullScreen
-              ></iframe>
-              <p className="text-center text-lg text-gray-700 mt-3">
-                {video.title}
-              </p>
+              <img
+                src={video.thumbnail}
+                alt={video.title}
+                className="w-full h-56 object-cover"
+              />
+              <div className="p-4">
+                <p className="text-lg font-semibold text-gray-700 text-center">
+                  {video.title}
+                </p>
+                <a
+                  href={`https://www.youtube.com/watch?v=${video.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block mt-2 text-center text-blue-500 hover:underline"
+                >
+                  Watch Now
+                </a>
+              </div>
             </div>
           ))}
         </div>

@@ -22,6 +22,7 @@ function App() {
         <Route path="/questions" element={<Questionnaire />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/score" element={<ScoreCard />} />
+        <Route path="/speech-analyzer" element={<SpeechAnalyzer />} />
       </Routes>
     </Router>
   );
