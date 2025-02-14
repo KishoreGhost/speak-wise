@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import image from "../assets/Frame 1000003437.png";
-import logo from "../assets/Screenshot 2025-02-14 153526.png";
+import logo from "../assets/logo.png";
 import { FaGoogle } from "react-icons/fa";
 
 const Login = () => {
