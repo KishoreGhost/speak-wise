@@ -8,7 +8,7 @@ import PostureTester from "./Components/Pose";
 import Login from "./Components/Login"
 import Signup from "./Components/Signup";
 import Questionnaire from "./Components/UserInfoQuestions/Questions";
-
+import SpeechAnalyzer from "./Components/SpeechAnalyzer";
 
 function App() {
   return (

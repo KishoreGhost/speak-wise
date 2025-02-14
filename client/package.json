@@ -12,6 +12,10 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@tailwindcss/vite": "^4.0.6",
+    "@tensorflow-models/posenet": "^2.2.2",
+    "@tensorflow/tfjs": "^3.21.0",
+    "@tensorflow/tfjs-backend-webgl": "^3.21.0",
+    "@tailwindcss/vite": "^4.0.6",
     "@mediapipe/camera_utils": "^0.3.1675466862",
     "@mediapipe/pose": "^0.5.1675469404",
     "axios": "^1.7.9",
@@ -27,6 +31,8 @@
     "react-scripts": "5.0.1",
     "shadcn-ui": "^0.9.4",
     "styled-components": "^6.1.15",
+    "tailwindcss": "^4.0.6",
+    "use-debounce": "^10.0.4"
     "tailwindcss": "^4.0.6",
     "use-debounce": "^10.0.4"
   },
