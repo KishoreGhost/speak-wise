@@ -11,7 +11,6 @@ const GoogleRouter = express.Router()
 const signUpRouter = express.Router()
 const LoginRouter = express.Router()
 const responsesRouter = express.Router()
-const uploadRouter = express.Router()
 
 signUpRouter.post("/signup", async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
@@ -119,40 +118,5 @@ responsesRouter.post('/responses', async(req, res) => {
   }  
 })
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Files will be saved in the 'uploads' directory
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  }
-});
 
-const upload = multer({ storage: storage });
-
-// Create 'uploads' directory if it doesn't exist
-if (!fs.existsSync('uploads')){
-  fs.mkdirSync('uploads');
-}
-
-// API endpoint for handling file uploads
-uploadRouter.post('/upload', upload.single('video'), (req, res) => { 
-  if (!req.file) {
-    return res.status(400).send('No file uploaded.');
-  }
-
-  const filePath = path.join(__dirname, 'uploads', req.file.originalname);
-  console.log("File saved to: ", filePath);
-
-  // Call your Python script here
-  // Example using child_process (you'll need to install 'child_process'):
-  // const { spawn } = require('child_process');
-  // const pythonProcess = spawn('python', ['your_script.py', filePath]); 
-  
-  res.send('File uploaded successfully!'); 
-});
-
-
-
-module.exports = {LoginRouter, signUpRouter, GoogleRouter, responsesRouter, uploadRouter}
+module.exports = {LoginRouter, signUpRouter, GoogleRouter, responsesRouter}
