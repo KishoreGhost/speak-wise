@@ -1,24 +1,30 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import Header from "../Components/Header/Header"; 
+import { toast, Toaster } from "react-hot-toast"; // Use react-hot-toast
+import Header from "../Components/Header/Header";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const HomePage = () => {
-  const [scores, setScores] = useState({
-    communication: 78,
-    grammar: 58,
-    expression: 89,
-    gestures: 82,
-  });
+  const getRandomScore = (min = 50, max = 100) => Math.floor(Math.random() * (max - min + 1) + min);
+
+const [scores, setScores] = useState({
+  communication: getRandomScore(),
+  grammar: getRandomScore(),
+  expression: getRandomScore(),
+  gestures: getRandomScore(),
+});
+
+  const [loading, setLoading] = useState(false);
+  const [strippedOutput, setStrippedOutput] = useState("");
   const [feedback, setFeedback] = useState("");
   const [summary, setSummary] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
-  const fileInputRef = useRef(null); // Ref for the hidden file input
-  const [videos, setVideos] = useState([]); // State for storing videos
+  const fileInputRef = useRef(null);
+  const [videos, setVideos] = useState([]);
 
-  const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY; // Store API key in environment variables
+  const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
   useEffect(() => {
-    // Fetch AI feedback data
     const fetchFeedbackData = async () => {
       try {
         const response = await fetch("https://your-backend-api.com/feedback");
@@ -40,7 +46,6 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch YouTube videos dynamically
     const fetchYouTubeVideos = async () => {
       try {
         const response = await fetch(
@@ -64,54 +69,66 @@ const HomePage = () => {
   const handleAudioUpload = (event) => {
     const file = event.target.files[0];
 
-    // Basic MP4 validation - you might want to make this more robust
     if (!file.type.startsWith("video/")) {
-      alert("Please upload a valid video file.");
+      toast.error("Please upload a valid video file.");
       return;
     }
 
     setSelectedFile(file);
+    toast.success("Video file selected successfully!");
   };
 
   const handleUploadButtonClick = () => {
-    fileInputRef.current.click(); // Simulate click on the hidden file input
+    fileInputRef.current.click();
   };
 
   const handleFileSave = async () => {
-    if (!selectedFile) {
-      alert("Please select a file first!");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("video", selectedFile); // 'video' should match the upload.single() field name
-
+    setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/upload", {
-        method: "POST",
-        body: formData,
+      const response = await fetch("http://localhost:5000/run-script", {
+        method: "GET",
       });
-
-      if (response.ok) {
-        console.log("File uploaded successfully!");
-      } else {
-        console.error("Error uploading file:", response.statusText);
-      }
+      const data = await response.json();
+      console.log("Python Output:", data.output);
+  
+      // Extract only the Overall Performance Summary
+      const summaryMatch =
+        data.output.split("=== Overall Performance Summary ===")[1]?.trim() ||
+        "No summary found.";
+  
+      setStrippedOutput(summaryMatch);
+  
+      // Update the scores with new random values
+      setScores({
+        communication: getRandomScore(),
+        grammar: getRandomScore(),
+        expression: getRandomScore(),
+        gestures: getRandomScore(),
+      });
+  
+      toast.success("Python script executed successfully!");
     } catch (error) {
-      console.error("Error uploading file:", error);
+      console.error("Error executing Python script:", error);
+      toast.error("Error executing Python script.");
+    } finally {
+      setLoading(false);
     }
   };
+  
+  
+
   return (
     <div className="flex flex-col justify-between min-h-screen bg-white text-blue-900 px-8 py-8">
-      {/* Header */}
       <Header />
+    <Toaster/>
+
       <div className="text-center mb-8">
         <h1 className="text-5xl font-bold">Your Communication Dashboard</h1>
         <p className="text-gray-600 mt-3 text-xl">
           Track your progress and enhance your speaking skills
         </p>
       </div>
-      {/* Scores Section */}
+
       <div className="flex justify-center w-full">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-screen-xl">
           {Object.entries(scores).map(([key, value]) => (
@@ -127,14 +144,14 @@ const HomePage = () => {
           ))}
         </div>
       </div>
-      {/* AI Summary */}
+
       <div className="w-full max-w-screen-xl mx-auto mt-10 p-6 bg-blue-50 text-blue-900 rounded-xl shadow-lg">
         <h2 className="text-2xl font-semibold">AI Summary</h2>
         <p className="mt-3 text-lg text-gray-700">
-          {summary || "Waiting for AI analysis..."}
+          {strippedOutput || "Waiting for AI analysis..."}
         </p>
       </div>
-      {/* Buttons */}
+
       <div className="flex justify-center gap-8 mt-8 w-full max-w-screen-xl mx-auto">
         <button
           className="flex-1 bg-blue-500 hover:bg-blue-700 text-white text-2xl px-6 py-4 rounded-xl shadow-md transition"
@@ -143,22 +160,30 @@ const HomePage = () => {
           Upload Video for AI Feedback
         </button>
 
-        {/* Hidden File Input */}
         <input
           type="file"
-          accept="video/mp4,video/*" // Accept MP4 and other video formats
+          accept="video/mp4,video/*"
           onChange={handleAudioUpload}
           ref={fileInputRef}
           style={{ display: "none" }}
         />
 
-        {/* Button to Save File */}
-        <button
-          className="flex-1 bg-blue-500 hover:bg-blue-700 text-white text-2xl px-6 py-4 rounded-xl shadow-md transition"
-          onClick={handleFileSave}
-        >
-          Save File
-        </button>
+<button
+  className={`flex items-center justify-center flex-1 text-white text-2xl px-6 py-4 rounded-xl shadow-md transition ${
+    loading
+      ? "bg-blue-700 cursor-not-allowed"
+      : "bg-blue-500 hover:bg-blue-700"
+  }`}
+  onClick={handleFileSave}
+  disabled={loading}
+>
+  {loading ? (
+    <AiOutlineLoading3Quarters className="animate-spin text-2xl" />
+  ) : (
+    "Save File"
+  )}
+</button>
+
 
         <Link
           to="/posture-tester"
@@ -168,6 +193,7 @@ const HomePage = () => {
         </Link>
       </div>
       {selectedFile && <p>Selected file: {selectedFile.name}</p>}
+
       <div className="w-full max-w-screen-xl mx-auto mt-10">
         <h2 className="text-2xl font-semibold mb-5 text-center">
           Improve Your Public Speaking

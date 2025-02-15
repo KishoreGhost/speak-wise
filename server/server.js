@@ -33,7 +33,6 @@ app.use("/", signUpRouter)
 app.use("/", LoginRouter)
 app.use("/", GoogleRouter)
 app.use("/", responsesRouter)
-app.use("/", uploadRouter)
 
 mongoose.connection.once('open', () => {
     console.log("Connected to mongoDB");
