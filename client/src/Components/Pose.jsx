@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { Pose } from "@mediapipe/pose";
 import { Camera } from "@mediapipe/camera_utils";
 import styled from "styled-components";
+import logo from "../assets/logo.png"
 
 // Styled Components for UI enhancements
 const Container = styled.div`
@@ -11,7 +12,6 @@ const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #f0f0f0;
   justify-content: space-between;
 `;
 
@@ -337,52 +337,71 @@ const PostureTester = () => {
   };
 
   return (
-    <Container>
-      <VideoCanvasContainer>
-        <video
-          ref={videoRef}
-          width={videoDimensions.width}
-          height={videoDimensions.height}
-          autoPlay
-          muted
-        />
-        <canvas
-          ref={canvasRef}
-          width={videoDimensions.width}
-          height={videoDimensions.height}
-        />
-      </VideoCanvasContainer>
+    <div className="flex flex-row h-screen w-screen bg-gray-100 p-4 font-sans overflow-hidden">
+  <div className="flex items-center justify-between w-full p-4 bg-white shadow-md fixed top-0 left-0 right-0 z-10">
+    <div className="flex items-center">
+      <img src={logo} alt="SpeakWise Logo" className="w-15 h-10 mr-2" />
+      <h1 className="text-xl font-semibold text-gray-800">SpeakWise</h1>
+    </div>
+  </div>
 
-      <ContentContainer>
-        <StyledButton onClick={toggleDetection}>
-          {isDetecting ? "Stop Detection" : "Start Detection"}
-        </StyledButton>
+  <div className="flex flex-row justify-evenly items-center w-screen h-screen">
+    {/* Left Section */}
+    <div className="flex items-center justify-center relative w-1/2 pr-5">
+      <video
+        ref={videoRef}
+        className="w-full max-w-full h-auto rounded-lg shadow-md"
+        autoPlay
+        muted
+      />
+      <canvas
+        ref={canvasRef}
+        className="absolute top-0 left-0 w-full h-full"
+      />
+    </div>
 
-        <StyledButton onClick={() => setStandingPosture((prev) => !prev)}>
-          Switch to {standingPosture ? "Sitting" : "Standing"} Posture
-        </StyledButton>
+    {/* Right Section */}
+    <div className="flex flex-col items-center w-[40%] justify-center">
+      <button
+        className="bg-blue-500 text-white text-lg py-2 px-5 rounded-md mb-4 hover:bg-blue-700 w-full"
+        onClick={toggleDetection}
+      >
+        {isDetecting ? "Stop Detection" : "Start Detection"}
+      </button>
 
-        <FeedbackContainer>
-          <h2>Posture Feedback</h2>
-          <FeedbackList>
-            {feedback.map((message, index) => (
-              <FeedbackItem key={index}>{message}</FeedbackItem>
-            ))}
-          </FeedbackList>
-        </FeedbackContainer>
+      <button
+        className="bg-green-500 text-white text-lg py-2 px-5 rounded-md mb-4 hover:bg-green-700 w-full"
+        onClick={() => setStandingPosture((prev) => !prev)}
+      >
+        Switch to {standingPosture ? "Sitting" : "Standing"} Posture
+      </button>
 
-        <BodyLanguageFeedbackContainer>
-          <h2>Body Language Feedback</h2>
-          <BodyLanguageFeedbackList>
-            {bodyLanguageFeedback.map((message, index) => (
-              <BodyLanguageFeedbackItem key={index}>
-                {message}
-              </BodyLanguageFeedbackItem>
-            ))}
-          </BodyLanguageFeedbackList>
-        </BodyLanguageFeedbackContainer>
-      </ContentContainer>
-    </Container>
+      <div className="bg-white border border-gray-300 rounded-lg p-4 mb-4 shadow-sm w-full">
+        <h2 className="text-xl font-bold mb-2">Posture Feedback</h2>
+        <ul className="list-disc list-inside">
+          {feedback.map((message, index) => (
+            <li key={index} className="text-gray-800 mb-1">
+              {message}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm w-full">
+        <h2 className="text-xl font-bold mb-2">Body Language Feedback</h2>
+        <ul className="list-disc list-inside">
+          {bodyLanguageFeedback.map((message, index) => (
+            <li key={index} className="text-gray-800 mb-1">
+              {message}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
   );
 };
 
