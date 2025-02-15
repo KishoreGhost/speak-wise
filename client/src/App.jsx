@@ -20,7 +20,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/posture-tester" element={<PostureTester />} />
         <Route path="/questions" element={<Questionnaire />} />
-        <Route path="/home" element={<HomePage />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/score" element={<ScoreCard />} />
         <Route path="/speech-analyzer" element={<SpeechAnalyzer />} />
       </Routes>

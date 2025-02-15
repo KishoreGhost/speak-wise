@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
+<<<<<<< Updated upstream
 import { Link } from "react-router-dom";
+=======
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
+import Header from "../Components/Header/Header"; 
+>>>>>>> Stashed changes
 
 const HomePage = () => {
   const [scores, setScores] = useState({
@@ -61,6 +66,7 @@ const HomePage = () => {
   return (
     <div className="flex flex-col justify-between min-h-screen bg-white text-blue-900 px-8 py-8">
       {/* Header */}
+      <Header />
       <div className="text-center mb-8">
         <h1 className="text-5xl font-bold">Your Communication Dashboard</h1>
         <p className="text-gray-600 mt-3 text-xl">
