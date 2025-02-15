@@ -11,6 +11,7 @@ const GoogleRouter = express.Router()
 const signUpRouter = express.Router()
 const LoginRouter = express.Router()
 const responsesRouter = express.Router()
+const uploadRouter = express.Router()
 
 signUpRouter.post("/signup", async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
@@ -136,7 +137,7 @@ if (!fs.existsSync('uploads')){
 }
 
 // API endpoint for handling file uploads
-app.post('/upload', upload.single('video'), (req, res) => { 
+uploadRouter.post('/upload', upload.single('video'), (req, res) => { 
   if (!req.file) {
     return res.status(400).send('No file uploaded.');
   }
@@ -154,4 +155,4 @@ app.post('/upload', upload.single('video'), (req, res) => {
 
 
 
-module.exports = {LoginRouter, signUpRouter, GoogleRouter, responsesRouter}
+module.exports = {LoginRouter, signUpRouter, GoogleRouter, responsesRouter, uploadRouter}
