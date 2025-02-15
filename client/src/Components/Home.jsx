@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from "react";
-<<<<<<< Updated upstream
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-=======
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import Header from "../Components/Header/Header"; 
->>>>>>> Stashed changes
 
 const HomePage = () => {
   const [scores, setScores] = useState({
@@ -15,6 +11,8 @@ const HomePage = () => {
   });
   const [feedback, setFeedback] = useState("");
   const [summary, setSummary] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null); // Ref for the hidden file input
   const [videos, setVideos] = useState([]); // State for storing videos
 
   const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY; // Store API key in environment variables
@@ -46,7 +44,7 @@ const HomePage = () => {
     const fetchYouTubeVideos = async () => {
       try {
         const response = await fetch(
-          `https://www.googleapis.com/youtube/v3/search?part=snippet&q=public%20speaking&type=video&key=${YOUTUBE_API_KEY}&maxResults=4`
+          `https://www.googleapis.com/youtube/v3/search?part=snippet&q=public%20speaking&type=video&key=${YOUTUBE_API_KEY}&maxResults=8`
         );
         const data = await response.json();
         const fetchedVideos = data.items.map((item) => ({
@@ -63,6 +61,46 @@ const HomePage = () => {
     fetchYouTubeVideos();
   }, [YOUTUBE_API_KEY]);
 
+  const handleAudioUpload = (event) => {
+    const file = event.target.files[0];
+
+    // Basic MP4 validation - you might want to make this more robust
+    if (!file.type.startsWith("video/")) {
+      alert("Please upload a valid video file.");
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
+  const handleUploadButtonClick = () => {
+    fileInputRef.current.click(); // Simulate click on the hidden file input
+  };
+
+  const handleFileSave = async () => {
+    if (!selectedFile) {
+      alert("Please select a file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("video", selectedFile); // 'video' should match the upload.single() field name
+
+    try {
+      const response = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        console.log("File uploaded successfully!");
+      } else {
+        console.error("Error uploading file:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
   return (
     <div className="flex flex-col justify-between min-h-screen bg-white text-blue-900 px-8 py-8">
       {/* Header */}
@@ -73,7 +111,6 @@ const HomePage = () => {
           Track your progress and enhance your speaking skills
         </p>
       </div>
-
       {/* Scores Section */}
       <div className="flex justify-center w-full">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-screen-xl">
@@ -90,7 +127,6 @@ const HomePage = () => {
           ))}
         </div>
       </div>
-
       {/* AI Summary */}
       <div className="w-full max-w-screen-xl mx-auto mt-10 p-6 bg-blue-50 text-blue-900 rounded-xl shadow-lg">
         <h2 className="text-2xl font-semibold">AI Summary</h2>
@@ -98,12 +134,32 @@ const HomePage = () => {
           {summary || "Waiting for AI analysis..."}
         </p>
       </div>
-
       {/* Buttons */}
       <div className="flex justify-center gap-8 mt-8 w-full max-w-screen-xl mx-auto">
-        <button className="flex-1 bg-blue-500 hover:bg-blue-700 text-white text-2xl px-6 py-4 rounded-xl shadow-md transition">
+        <button
+          className="flex-1 bg-blue-500 hover:bg-blue-700 text-white text-2xl px-6 py-4 rounded-xl shadow-md transition"
+          onClick={handleUploadButtonClick}
+        >
           Upload Video for AI Feedback
         </button>
+
+        {/* Hidden File Input */}
+        <input
+          type="file"
+          accept="video/mp4,video/*" // Accept MP4 and other video formats
+          onChange={handleAudioUpload}
+          ref={fileInputRef}
+          style={{ display: "none" }}
+        />
+
+        {/* Button to Save File */}
+        <button
+          className="flex-1 bg-blue-500 hover:bg-blue-700 text-white text-2xl px-6 py-4 rounded-xl shadow-md transition"
+          onClick={handleFileSave}
+        >
+          Save File
+        </button>
+
         <Link
           to="/posture-tester"
           className="flex-1 bg-green-500 hover:bg-green-700 text-white text-2xl px-6 py-4 rounded-xl shadow-md transition text-center"
@@ -111,8 +167,7 @@ const HomePage = () => {
           Get Live Recommendations
         </Link>
       </div>
-
-      {/* Video Section */}
+      {selectedFile && <p>Selected file: {selectedFile.name}</p>}
       <div className="w-full max-w-screen-xl mx-auto mt-10">
         <h2 className="text-2xl font-semibold mb-5 text-center">
           Improve Your Public Speaking

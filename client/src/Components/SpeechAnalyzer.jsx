@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate from React Router
+import { useNavigate } from "react-router-dom";
 import {
   FaMicrophone,
   FaMicrophoneSlash,
@@ -10,7 +10,7 @@ import {
 import logo from "../assets/logo.png";
 
 const SpeechAnalyzer = () => {
-  const [isDemoStarted, setIsDemoStarted] = useState(false); // State to track demo start
+  const [isDemoStarted, setIsDemoStarted] = useState(false);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isTranscribing, setIsTranscribing] = useState(true);
@@ -19,7 +19,36 @@ const SpeechAnalyzer = () => {
   const [emotion, setEmotion] = useState("Neutral");
   const videoRef = useRef(null);
   const recognitionRef = useRef(null);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let stream;
+
+    const getCameraAccess = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+        videoRef.current.srcObject = stream;
+      } catch (error) {
+        console.error("Error accessing camera/microphone:", error);
+      }
+    };
+
+    if (isDemoStarted && isCameraOn) {
+      getCameraAccess();
+    }
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [isDemoStarted, isCameraOn]);
 
   useEffect(() => {
     if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
@@ -27,19 +56,22 @@ const SpeechAnalyzer = () => {
         window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
-      recognition.interimResults = true;
+      recognition.interimResults = false;
       recognition.lang = "en-US";
 
       recognition.onresult = (event) => {
         let newText = "";
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          newText += event.results[i][0].transcript + " ";
+          if (event.results[i].isFinal) {
+            newText += event.results[i][0].transcript + " ";
+          }
         }
         setTranscript(
           (prevTranscript) => prevTranscript + " " + newText.trim()
         );
         analyzeEmotion(newText);
       };
+
       recognitionRef.current = recognition;
 
       if (isTranscribing) {
@@ -82,20 +114,19 @@ const SpeechAnalyzer = () => {
   if (!isDemoStarted) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-100 p-6">
-        {/* <img src={logo} alt="SpeakWise Logo" className="w-20 h-20 mb-6" /> */}
         <h1 className="text-2xl font-semibold mb-4">Welcome to SpeakWise</h1>
         <p className="text-lg text-gray-600 mb-8 text-center">
           Get started with a live speech analysis demo or skip to the home page.
         </p>
         <div className="flex space-x-4">
           <button
-            onClick={() => navigate("/home")} // Navigate to home
+            onClick={() => navigate("/home")}
             className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
           >
             Skip
           </button>
           <button
-            onClick={() => setIsDemoStarted(true)} // Start demo
+            onClick={() => setIsDemoStarted(true)}
             className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
             Continue with Demo
@@ -107,7 +138,6 @@ const SpeechAnalyzer = () => {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-gray-100 p-4 font-sans overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-between w-full p-4 bg-white shadow-md fixed top-0 left-0 right-0 z-10">
         <div className="flex items-center">
           <img src={logo} alt="SpeakWise Logo" className="w-15 h-10 mr-2" />
@@ -115,7 +145,6 @@ const SpeechAnalyzer = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex flex-1 mt-20 px-6 gap-6 overflow-hidden">
         {isPresentationActive ? (
           <div className="flex-1 flex items-center justify-center bg-black rounded-lg relative overflow-hidden">
@@ -133,7 +162,6 @@ const SpeechAnalyzer = () => {
             )}
           </div>
         ) : null}
-        {/* Live Transcription & Analysis */}
         <div
           className={`${
             isPresentationActive ? "w-1/3" : "w-2/3"
@@ -149,7 +177,6 @@ const SpeechAnalyzer = () => {
         </div>
       </div>
 
-      {/* Controls */}
       {isPresentationActive && (
         <div className="flex justify-center space-x-6 mt-6">
           <button
